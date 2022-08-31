@@ -1,0 +1,6 @@
+### Head’s up: SET on call for next week
+Hello, here is the SET on-call for the week of {{date}}. [Get your pagers on](https://handbook.mattermost.com/operations/research-and-development/engineering/team)!
+
+**SET Lead:** @{{lead.username}}
+**Primaries:** {{#each primary}}@{{username}} {{/each}}
+**Backups:** {{#each backup}}@{{username}} {{/each}}

@@ -1,0 +1,20 @@
+name: set
+functions:
+  postOnCallNextWeekCommand:
+    path: set.ts:postOnCallNextWeekCommand
+    command:
+      name: "OpsGenie: Post Next Week Schedule"
+  postOnCallNextWeek:
+    path: set.ts:postOnCallNextWeek
+    env: server
+    # Post at 8am UTC on Wednesday
+    cron: "0 8 * * 3"
+  postOnCallCommand:
+    path: set.ts:postOnCallCommand
+    command:
+      name: "OpsGenie: Post Current Schedule"
+  postOnCall:
+    env: server
+    path: set.ts:postOnCall
+    # Post at 8am UTC on Monday
+    cron: "0 8 * * 1"

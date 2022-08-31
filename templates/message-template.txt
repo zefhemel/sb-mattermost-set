@@ -1,0 +1,6 @@
+## SET Schedule for the week of {{date}}
+**SET Lead:** @{{lead.username}}
+**Primaries:** {{#each primary}}@{{username}} {{/each}}
+**Backups:** {{#each backup}}@{{username}} {{/each}}
+
+Want to notify everybody in SET at once? Use the @set group mention.
