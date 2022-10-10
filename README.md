@@ -1,24 +1,14 @@
 
-# SilverBullet plug for saying hello to the user
+# Mattermost bot for SET schedule posting
 
-A well behaved plug that will greet your users.
+Implemented as a Silver Bullet, because... why not?
 
-## Wait, SilverBullet?
-
-If you don't know what it is, check its [webpage](https://silverbullet.md), but if
-you want me to spoil the fun: it is an extensible note taking app with markdown and plain files at its core
-(well... there is a bit of magic in there too, but what good it would be without a little magic?)
-
-## Installation
-
-Open (`cmd+k`) your `PLUGS` note in SilverBullet and add this plug to the list:
+To configure in `SECRETS`:
 
 ```yaml
-- https://github.com/Willyfrog/silverbullet-plug-example/releases/download/v0.1/helloworld.plug.json
+setMattermostToken: token-for-the-bot-user
+setOpsGenieTokens:
+  lead: "webcalToken=xxx&scheduleId=a121cd12-2961-47bb-8fb0-7d7252a18fb6"
+  primary: "webcalToken=xxx&scheduleId=cc2b2e08-b690-434b-a8a0-b4943f8eb3d2"
+  backup: "webcalToken=xxx&scheduleId=967e7812-e594-4d0f-8f26-8b2e98f43906"
 ```
-
-Then run the `Plugs: Update` command and off you go!
-
-## What's with all that Lone Ranger quotes
-
-Don't you know that the [Lone Ranger used silver bullets to solve all the problems](https://en.wikipedia.org/wiki/Silver_bullet#Lone_Ranger)?
