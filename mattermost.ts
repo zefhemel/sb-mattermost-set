@@ -1,13 +1,13 @@
-import { writePage } from "@silverbulletmd/plugos-silverbullet-syscall/space";
-import YAML from "yaml";
-import { readYamlPage } from "@silverbulletmd/plugs/lib/yaml_page";
-import { readSecrets } from "@silverbulletmd/plugs/lib/secrets_page";
+import { writePage } from "$sb-syscall/silverbullet-syscall/space.ts";
+import * as YAML from "yaml";
+import { readYamlPage } from "$sb/plugs/lib/yaml_page.ts";
+import { readSecrets } from "$sb/plugs/lib/secrets_page.ts";
 import {
-  userMappingCachePage,
   channelId,
-  setGroupId,
   mmUrl,
-} from "./constants";
+  setGroupId,
+  userMappingCachePage,
+} from "./constants.ts";
 
 async function writeYamlPage(pageName: string, data: any): Promise<void> {
   const text = YAML.stringify(data);
@@ -32,7 +32,7 @@ export type MattermostUser = {
 async function mattermostFetch(
   path: string,
   method: string,
-  body?: any
+  body?: any,
 ): Promise<any> {
   const [mmToken] = await readSecrets(["setMattermostToken"]);
   let url = `${mmUrl}${path}`;
@@ -59,7 +59,7 @@ export async function findUserByName(name: string): Promise<MattermostUser> {
   let users = (
     await mattermostFetch(
       `/api/v4/users/autocomplete?name=${encodeURIComponent(name)}`,
-      "GET"
+      "GET",
     )
   ).users;
   if (users.length === 0) {
@@ -68,7 +68,7 @@ export async function findUserByName(name: string): Promise<MattermostUser> {
   if (users.length > 1) {
     console.warn(
       "Multiple users found",
-      users.map((user) => user.username)
+      users.map((user) => user.username),
     );
   }
   const user = { id: users[0].id, username: users[0].username };
@@ -76,7 +76,7 @@ export async function findUserByName(name: string): Promise<MattermostUser> {
   await writeMappings();
   return user;
 }
-export async function postMessage(message: string) {
+export function postMessage(message: string) {
   return mattermostFetch(`/api/v4/posts`, "POST", {
     channel_id: channelId,
     message,
@@ -92,7 +92,7 @@ export async function resetSETTeam(userIds: string[]) {
   console.log("Assigning new userIds", userIds);
   let currentMembers = await mattermostFetch(
     `/api/v4/users?in_group=${setGroupId}&per_page=50`,
-    "GET"
+    "GET",
   );
 
   await mattermostFetch(`/api/v4/groups/${setGroupId}/members`, "DELETE", {

@@ -1,20 +1,20 @@
-import { invokeFunction } from "@silverbulletmd/plugos-silverbullet-syscall/system";
-import { readPage } from "@silverbulletmd/plugos-silverbullet-syscall/space";
+import { invokeFunction } from "$sb-syscall/silverbullet-syscall/system.ts";
+import { readAsset } from "$sb-syscall/plugos-syscall/asset.ts";
 import Handlebars from "handlebars";
 
 import {
-  MattermostUser,
   findUserByName,
+  MattermostUser,
   postMessage,
   resetSETTeam,
   updateChannel,
-} from "./mattermost";
-import { readSecrets } from "@silverbulletmd/plugs/lib/secrets_page";
-import { opsGenieScheduleUrl, channelId } from "./constants";
+} from "./mattermost.ts";
+import { readSecrets } from "$sb/plugs/lib/secrets_page.ts";
+import { channelId, opsGenieScheduleUrl } from "./constants.ts";
 
 function parseDate(s: string): Date {
   return new Date(
-    `${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`
+    `${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}`,
   );
 }
 
@@ -91,10 +91,10 @@ async function getScheduleForDate(d = new Date()) {
   return scheduleObj;
 }
 
-// @ts-ignore
-import scheduleTemplate from "./templates/message-template.txt";
-
 export async function postOnCall() {
+  const { text: scheduleTemplate } = await readAsset(
+    "templates/message-template.txt",
+  );
   try {
     let template = Handlebars.compile(scheduleTemplate, { noEscape: true });
     let schedule = await getScheduleForDate(new Date());
@@ -112,10 +112,10 @@ export async function postOnCall() {
   }
 }
 
-// @ts-ignore
-import nextWeekTemplate from "./templates/next-week-template.txt";
-
 export async function postOnCallNextWeek() {
+  const { text: nextWeekTemplate } = await readAsset(
+    "templates/next-week-template.txt",
+  );
   try {
     let nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
@@ -130,12 +130,10 @@ export async function postOnCallNextWeek() {
   }
 }
 
-// @ts-ignore
-import headerTemplate from "./templates/header.txt";
-
 async function updateChannelHeader(schedule) {
+  const { text: headerTemplate } = await readAsset("templates/header.txt");
   // let { text } = await readPage(headerTemplatePage);
-  let template = Handlebars.compile(headerTemplate, { noEscape: true });
+  const template = Handlebars.compile(headerTemplate, { noEscape: true });
   let rendered = template(schedule);
   console.log("Updating channel header", channelId, rendered);
   console.log("Response", await updateChannel(channelId, { header: rendered }));
@@ -143,7 +141,7 @@ async function updateChannelHeader(schedule) {
 
 function findActive(
   schedules: GroupedSchedule[],
-  date: Date
+  date: Date,
 ): GroupedSchedule[] {
   let active: GroupedSchedule[] = [];
   for (let schedule of schedules) {

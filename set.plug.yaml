@@ -1,4 +1,6 @@
 name: set
+assets:
+  - "templates/*"
 functions:
   postOnCallNextWeekCommand:
     path: set.ts:postOnCallNextWeekCommand
