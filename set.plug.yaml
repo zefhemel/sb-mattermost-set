@@ -1,6 +1,8 @@
 name: set
 assets:
   - "templates/*"
+imports:
+  - https://get.silverbullet.md/global.plug.json
 functions:
   postOnCallNextWeekCommand:
     path: set.ts:postOnCallNextWeekCommand
