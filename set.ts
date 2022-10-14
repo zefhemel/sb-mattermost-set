@@ -1,5 +1,5 @@
-import { invokeFunction } from "$sb-syscall/silverbullet-syscall/system.ts";
-import { readAsset } from "$sb-syscall/plugos-syscall/asset.ts";
+import { system } from "$sb/silverbullet-syscall/mod.ts";
+import { asset } from "$sb/plugos-syscall/mod.ts";
 import Handlebars from "handlebars";
 
 import {
@@ -9,7 +9,7 @@ import {
   resetSETTeam,
   updateChannel,
 } from "./mattermost.ts";
-import { readSecrets } from "$sb/plugs/lib/secrets_page.ts";
+import { readSecrets } from "$sb/lib/secrets_page.ts";
 import { channelId, opsGenieScheduleUrl } from "./constants.ts";
 
 function parseDate(s: string): Date {
@@ -31,11 +31,11 @@ type GroupedSchedule = {
 
 async function pullSchedule(which: string): Promise<GroupedSchedule[]> {
   const [schedules] = await readSecrets(["setOpsGenieTokens"]);
-  let r = await fetch(`${opsGenieScheduleUrl}?${schedules[which]}`);
-  let text = await r.text();
-  let lines = text.split("\n");
+  const r = await fetch(`${opsGenieScheduleUrl}?${schedules[which]}`);
+  const text = await r.text();
+  const lines = text.split("\n");
   let lastDate, lastOnCall;
-  let schedule: Schedule[] = [];
+  const schedule: Schedule[] = [];
   for (let i = 0; i < lines.length; i++) {
     let line = lines[i];
     if (line.startsWith("DTSTART;")) {
@@ -69,20 +69,20 @@ type ScheduleObj = {
 };
 
 async function getScheduleForDate(d = new Date()) {
-  let [lead, primary, backup] = await Promise.all([
+  const [lead, primary, backup] = await Promise.all([
     pullSchedule("lead"),
     pullSchedule("primary"),
     pullSchedule("backup"),
   ]);
-  let firstDayOfWeek = new Date(d.setDate(d.getDate() - d.getDay() + 1));
-  let scheduleObj: ScheduleObj = {
+  const firstDayOfWeek = new Date(d.setDate(d.getDate() - d.getDay() + 1));
+  const scheduleObj: ScheduleObj = {
     date: firstDayOfWeek.toISOString().split("T")[0],
     lead: await findUserByName(findActive(lead, d)[0].name),
     primary: [],
     backup: [],
   };
 
-  for (let { name } of findActive(primary, d)) {
+  for (const { name } of findActive(primary, d)) {
     scheduleObj.primary.push(await findUserByName(name));
   }
   for (let { name } of findActive(backup, d)) {
@@ -92,13 +92,13 @@ async function getScheduleForDate(d = new Date()) {
 }
 
 export async function postOnCall() {
-  const { text: scheduleTemplate } = await readAsset(
+  const scheduleTemplate = await asset.readAsset(
     "templates/message-template.txt",
   );
   try {
-    let template = Handlebars.compile(scheduleTemplate, { noEscape: true });
-    let schedule = await getScheduleForDate(new Date());
-    let rendered = template(schedule);
+    const template = Handlebars.compile(scheduleTemplate, { noEscape: true });
+    const schedule = await getScheduleForDate(new Date());
+    const rendered = template(schedule);
     await postMessage(rendered);
     await resetSETTeam([
       schedule.lead.id,
@@ -113,15 +113,15 @@ export async function postOnCall() {
 }
 
 export async function postOnCallNextWeek() {
-  const { text: nextWeekTemplate } = await readAsset(
+  const nextWeekTemplate = await asset.readAsset(
     "templates/next-week-template.txt",
   );
   try {
-    let nextWeek = new Date();
+    const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
-    let template = Handlebars.compile(nextWeekTemplate, { noEscape: true });
-    let schedule = await getScheduleForDate(nextWeek);
-    let rendered = template(schedule);
+    const template = Handlebars.compile(nextWeekTemplate, { noEscape: true });
+    const schedule = await getScheduleForDate(nextWeek);
+    const rendered = template(schedule);
     //console.log("Rendered", rendered);
     await postMessage(rendered);
   } catch (e) {
@@ -131,10 +131,10 @@ export async function postOnCallNextWeek() {
 }
 
 async function updateChannelHeader(schedule) {
-  const { text: headerTemplate } = await readAsset("templates/header.txt");
+  const headerTemplate = await asset.readAsset("templates/header.txt");
   // let { text } = await readPage(headerTemplatePage);
   const template = Handlebars.compile(headerTemplate, { noEscape: true });
-  let rendered = template(schedule);
+  const rendered = template(schedule);
   console.log("Updating channel header", channelId, rendered);
   console.log("Response", await updateChannel(channelId, { header: rendered }));
 }
@@ -153,10 +153,10 @@ function findActive(
 }
 
 export function postOnCallNextWeekCommand() {
-  return invokeFunction("server", "postOnCallNextWeek");
+  return system.invokeFunction("server", "postOnCallNextWeek");
 }
 
 export function postOnCallCommand() {
   console.log("POSTing on call");
-  return invokeFunction("server", "postOnCall");
+  return system.invokeFunction("server", "postOnCall");
 }

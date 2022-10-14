@@ -1,7 +1,7 @@
-import { writePage } from "$sb-syscall/silverbullet-syscall/space.ts";
+import { space } from "$sb/silverbullet-syscall/mod.ts";
 import * as YAML from "yaml";
-import { readYamlPage } from "$sb/plugs/lib/yaml_page.ts";
-import { readSecrets } from "$sb/plugs/lib/secrets_page.ts";
+import { readYamlPage } from "$sb/lib/yaml_page.ts";
+import { readSecrets } from "$sb/lib/secrets_page.ts";
 import {
   channelId,
   mmUrl,
@@ -11,7 +11,7 @@ import {
 
 async function writeYamlPage(pageName: string, data: any): Promise<void> {
   const text = YAML.stringify(data);
-  await writePage(pageName, "```yaml\n" + text + "\n```");
+  await space.writePage(pageName, "```yaml\n" + text + "\n```");
 }
 let mappingCache: any;
 
@@ -68,7 +68,7 @@ export async function findUserByName(name: string): Promise<MattermostUser> {
   if (users.length > 1) {
     console.warn(
       "Multiple users found",
-      users.map((user) => user.username),
+      users.map((user: any) => user.username),
     );
   }
   const user = { id: users[0].id, username: users[0].username };
@@ -82,7 +82,7 @@ export function postMessage(message: string) {
     message,
   });
 }
-export async function updateChannel(id: string, props: any) {
+export function updateChannel(id: string, props: any) {
   return mattermostFetch(`/api/v4/channels/${id}/patch`, "PUT", {
     id,
     ...props,
@@ -90,13 +90,13 @@ export async function updateChannel(id: string, props: any) {
 }
 export async function resetSETTeam(userIds: string[]) {
   console.log("Assigning new userIds", userIds);
-  let currentMembers = await mattermostFetch(
+  const currentMembers = await mattermostFetch(
     `/api/v4/users?in_group=${setGroupId}&per_page=50`,
     "GET",
   );
 
   await mattermostFetch(`/api/v4/groups/${setGroupId}/members`, "DELETE", {
-    user_ids: currentMembers.map((user) => user.id),
+    user_ids: currentMembers.map((user: any) => user.id),
   });
 
   console.log("Cleared @set");

@@ -1,7 +1,6 @@
 {
   "imports": {
-    "$sb-syscall/": "../silverbullet/syscall/",
-    "$sb/": "../silverbullet/",
+    "$sb/": "../silverbullet/plug-api/",
     "handlebars": "https://esm.sh/handlebars",
     "yaml": "https://deno.land/std/encoding/yaml.ts"
   }
